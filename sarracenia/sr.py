@@ -1869,17 +1869,19 @@ class sr_GlobalState:
                         continue
 
                     print(f"deleting: {f} is: {q['name']} @ {broker.url.hostname}")
-                    qdc = sarracenia.moth.Moth.subFactory(
-                        {
-                            'broker': broker,
-                            'dry_run': self.options.dry_run,
-                            'credentials': o.credentials,
-                            'echangeDeclare': False,
-                            'subscription_index': 0,
-                            'subscriptions' : [ s ],
-                            'message_strategy': { 'stubborn':True },
-                            'tlsRigour': q['tlsRigour']
-                        })
+                    odict = o.dictify()
+                    odict.update({
+                        'broker': broker,
+                        'dry_run': self.options.dry_run,
+                        'credentials': o.credentials,
+                        'exchangeDeclare': False,
+                        'subscription_index': 0,
+                        'subscriptions' : [ s ],
+                        'message_strategy': { 'stubborn':True },
+                        'tlsRigour': q['tlsRigour'],
+                        'no': 0,
+                    })
+                    qdc = sarracenia.moth.Moth.subFactory(odict)
                     qdc.getSetup()
                     qdc.getCleanUp()
                     qdc.close()
@@ -1906,16 +1908,17 @@ class sr_GlobalState:
                                 if p['broker'].url.hostname != h:
                                     continue
 
-                                qdc = sarracenia.moth.Moth.pubFactory(
-                                    {
-                                        'broker': p['broker'],
-                                        'declare': False,
-                                        'exchange': p['exchange'] if 'exchange' in p else None,
-                                        'dry_run': self.options.dry_run,
-                                        'broker': self.brokers[h]['admin'],
-                                        'message_strategy': { 'stubborn':True },
-                                        'tlsRigour': p['tlsRigour']
-                                    })
+                                odict = o.dictify()
+                                odict.update({
+                                    'declare': False,
+                                    'exchange': p['exchange'] if 'exchange' in p else None,
+                                    'dry_run': self.options.dry_run,
+                                    'broker': self.brokers[h]['admin'],
+                                    'message_strategy': { 'stubborn':True },
+                                    'tlsRigour': p['tlsRigour'],
+                                    'no': 0,
+                                })
+                                qdc = sarracenia.moth.Moth.pubFactory(odict)
                                 if qdc:
                                     qdc.putSetup()
                                     qdc.putCleanUp()
